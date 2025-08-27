@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigation } from "@/components/navigation";
 import "./globals.css";
 
 export const metadata = {
@@ -13,7 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <Navigation />
+        <main className="flex-1">{children}</main>
+      </body>
     </html>
   );
 }
