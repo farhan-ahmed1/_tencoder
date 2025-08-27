@@ -41,6 +41,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build core packages first
+        run: |
+          cd packages/core && pnpm run build
+
       - name: Type check
         run: pnpm typecheck
 

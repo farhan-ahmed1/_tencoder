@@ -128,7 +128,9 @@ export default function Board() {
                   No tasks
                 </p>
               ) : (
-                column.tasks.map(task => <TaskCard key={task.id} task={task} />)
+                column.tasks.map(task => (
+                  <TaskCard key={task.id} task={task} className="mb-3" />
+                ))
               )}
             </CardContent>
           </Card>

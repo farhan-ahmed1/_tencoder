@@ -1,5 +1,5 @@
 {
-  "name": "_tencoder",
+  "name": "tencoder",
   "version": "0.1.0",
   "private": true,
   "description": "Self-updating project planner",
@@ -10,12 +10,14 @@
   "packageManager": "pnpm@8.15.0",
   "scripts": {
     "build": "turbo build",
+    "build:tsc": "tsc --build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo clean && rm -rf node_modules",
+    "clean:tsc": "tsc --build --clean",
     "prepare": "husky install"
   },
   "workspaces": [

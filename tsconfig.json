@@ -5,13 +5,13 @@
     "noEmit": false
   },
   "references": [
-    { "path": "./apps/web" },
+    { "path": "./packages/core" },
+    { "path": "./packages/analyzer" },
+    { "path": "./packages/planner" },
+    { "path": "./packages/ui" },
     { "path": "./apps/api" },
     { "path": "./apps/worker" },
-    { "path": "./packages/core" },
-    { "path": "./packages/planner" },
-    { "path": "./packages/analyzer" },
-    { "path": "./packages/ui" }
+    { "path": "./apps/web" }
   ],
   "files": [],
   "include": []
