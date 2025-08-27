@@ -1,5 +1,6 @@
 import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import { config, isDevelopment, isTest } from "./config";
 import { connectDatabase, disconnectDatabase } from "./database";
 import { errorHandler } from "./errorHandler";
@@ -30,6 +31,17 @@ function createServer(): FastifyInstance {
   // Register CORS
   server.register(cors, {
     origin: true,
+  });
+
+  // Register multipart support for file uploads
+  server.register(multipart, {
+    limits: {
+      fieldNameSize: 100, // Max field name size in bytes
+      fieldSize: 1024 * 1024, // Max field value size in bytes (1MB)
+      fields: 10, // Max number of non-file fields
+      fileSize: 5 * 1024 * 1024, // Max file size in bytes (5MB)
+      files: 1, // Max number of file fields
+    },
   });
 
   // Health check endpoint

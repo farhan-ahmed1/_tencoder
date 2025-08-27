@@ -8,6 +8,11 @@ import {
   APIResponse,
 } from "@tencoder/core";
 import { ProjectService, PRDService } from "./services";
+import {
+  parsePRDMarkdown,
+  validatePRDContent,
+  extractTitleFromContent,
+} from "./utils/markdown";
 
 const projectService = new ProjectService();
 const prdService = new PRDService();
@@ -418,6 +423,113 @@ async function projectRoutes(fastify: FastifyInstance) {
           error: {
             code: "INTERNAL_ERROR",
             message: "Failed to update PRD",
+          },
+        } satisfies APIResponse;
+      }
+    }
+  );
+
+  // POST /api/projects/:projectId/prds/upload - Upload PRD markdown file
+  fastify.post<{ Params: { projectId: string } }>(
+    "/projects/:projectId/prds/upload",
+    async request => {
+      try {
+        // Check if file was uploaded
+        const data = await request.file();
+
+        if (!data) {
+          return {
+            success: false,
+            error: {
+              code: "VALIDATION_ERROR",
+              message: "No file uploaded",
+            },
+          } satisfies APIResponse;
+        }
+
+        // Validate file type
+        if (
+          !data.filename?.endsWith(".md") &&
+          !data.filename?.endsWith(".markdown")
+        ) {
+          return {
+            success: false,
+            error: {
+              code: "VALIDATION_ERROR",
+              message: "File must be a markdown file (.md or .markdown)",
+            },
+          } satisfies APIResponse;
+        }
+
+        // Read file content
+        const buffer = await data.toBuffer();
+        const content = buffer.toString("utf-8");
+
+        // Parse markdown with YAML front-matter
+        let parsedPRD;
+        try {
+          parsedPRD = parsePRDMarkdown(content);
+        } catch (parseError) {
+          return {
+            success: false,
+            error: {
+              code: "VALIDATION_ERROR",
+              message: `Failed to parse PRD: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+            },
+          } satisfies APIResponse;
+        }
+
+        // Validate content structure
+        const contentValidation = validatePRDContent(parsedPRD.content);
+
+        // Extract title from content if not provided
+        let title = extractTitleFromContent(parsedPRD.content);
+        if (!title) {
+          title =
+            data.filename.replace(/\.(md|markdown)$/i, "") || "Untitled PRD";
+        }
+
+        // Create PRD using the service
+        const prdData = {
+          title,
+          content: parsedPRD.content,
+          metadata: parsedPRD.metadata,
+          version: "1.0.0",
+        };
+
+        const prd = await prdService.createPRD(
+          request.params.projectId,
+          MOCK_USER_ID,
+          prdData
+        );
+
+        if (!prd) {
+          return {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: "Project not found",
+            },
+          } satisfies APIResponse;
+        }
+
+        return {
+          success: true,
+          data: {
+            prd,
+            validation: {
+              contentWarnings: contentValidation.errors,
+              hasYamlFrontMatter: !!parsedPRD.rawYaml,
+            },
+          },
+        } satisfies APIResponse;
+      } catch (error) {
+        fastify.log.error(error);
+        return {
+          success: false,
+          error: {
+            code: "INTERNAL_ERROR",
+            message: "Failed to upload PRD",
           },
         } satisfies APIResponse;
       }
