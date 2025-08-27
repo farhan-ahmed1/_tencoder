@@ -1,42 +1,67 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, Badge } from "@tencoder/ui";
+import { config } from "@/lib/config";
+import type { Project } from "@tencoder/core";
 
-// Mock data for development
-const mockProjects = [
-  {
-    id: "proj-1",
-    name: "_tencoder Development",
-    description: "Self-updating project planner implementation",
-    repoUrl: "https://github.com/farhan-ahmed1/_tencoder",
-    isActive: true,
-    createdAt: new Date("2025-08-25T10:00:00Z"),
-    updatedAt: new Date("2025-08-27T16:00:00Z"),
-    prds: [
-      {
-        id: "prd-1",
-        title: "PRD Ingestion Feature",
-        version: "1.0.0",
-        isActive: true,
-        createdAt: new Date("2025-08-27T14:00:00Z"),
-      },
-    ],
-  },
-  {
-    id: "proj-2",
-    name: "Sample Project",
-    description: "A sample project for testing",
-    repoUrl: null,
-    isActive: true,
-    createdAt: new Date("2025-08-26T09:00:00Z"),
-    updatedAt: new Date("2025-08-26T09:00:00Z"),
-    prds: [],
-  },
-];
+interface ProjectsResponse {
+  success: boolean;
+  data?: Project[];
+  error?: {
+    code: string;
+    message: string;
+  };
+}
 
 export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(`${config.apiUrl}/api/projects`);
+        const result: ProjectsResponse = await response.json();
+
+        if (result.success && result.data) {
+          setProjects(result.data);
+        } else {
+          setError(result.error?.message || "Failed to load projects");
+        }
+      } catch (err) {
+        setError("Network error. Please check your connection.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[200px]">
+          <div className="text-muted-foreground">Loading projects...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center text-red-600">{error}</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8 flex justify-between items-center">
@@ -57,7 +82,7 @@ export default function ProjectsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockProjects.map(project => (
+        {projects.map(project => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -99,8 +124,10 @@ export default function ProjectsPage() {
 
                 <div className="text-sm">
                   <span className="text-muted-foreground">PRDs: </span>
-                  <span className="font-medium">{project.prds.length}</span>
-                  {project.prds.length > 0 && (
+                  <span className="font-medium">
+                    {project.prds?.length || 0}
+                  </span>
+                  {project.prds && project.prds.length > 0 && (
                     <span className="text-muted-foreground ml-2">
                       (Latest: {project.prds[0].title})
                     </span>
@@ -108,7 +135,7 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="text-xs text-muted-foreground">
-                  Updated {project.updatedAt.toLocaleDateString()}
+                  Updated {new Date(project.updatedAt).toLocaleDateString()}
                 </div>
 
                 <div className="flex gap-2 pt-2">
@@ -131,7 +158,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {mockProjects.length === 0 && (
+      {projects.length === 0 && (
         <div className="text-center py-12">
           <h3 className="text-lg font-medium text-muted-foreground mb-2">
             No projects found
