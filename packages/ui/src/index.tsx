@@ -67,4 +67,4 @@ export * from "./badge";
 export * from "./utils";
 
 // Re-export types from core
-export type { Task, Epic, Checker, ProjectSignal } from "@tencoder/core";
+export type { Task, Epic, Checker, Signal } from "@tencoder/core";

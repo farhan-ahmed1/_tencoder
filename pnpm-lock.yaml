@@ -218,6 +218,10 @@ importers:
         version: 5.9.2
 
   packages/core:
+    dependencies:
+      zod:
+        specifier: ^3.22.0
+        version: 3.25.76
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.13.0

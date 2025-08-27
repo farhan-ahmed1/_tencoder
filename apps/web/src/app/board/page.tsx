@@ -27,6 +27,9 @@ const mockTasks: Task[] = [
       prdRefs: ["frontend-setup"],
       repoSignals: ["tailwind-config"],
     },
+    priority: 1,
+    createdAt: new Date("2025-08-25T10:00:00Z"),
+    updatedAt: new Date("2025-08-27T15:30:00Z"),
   },
   {
     id: "task-2",
@@ -43,6 +46,9 @@ const mockTasks: Task[] = [
       prdRefs: ["navigation-requirement"],
       repoSignals: ["nav-component"],
     },
+    priority: 2,
+    createdAt: new Date("2025-08-26T09:00:00Z"),
+    updatedAt: new Date("2025-08-27T16:00:00Z"),
   },
   {
     id: "task-3",
@@ -59,6 +65,9 @@ const mockTasks: Task[] = [
       prdRefs: ["ui-library"],
       repoSignals: [],
     },
+    priority: 3,
+    createdAt: new Date("2025-08-27T08:00:00Z"),
+    updatedAt: new Date("2025-08-27T08:00:00Z"),
   },
   {
     id: "task-4",
@@ -75,6 +84,9 @@ const mockTasks: Task[] = [
       prdRefs: ["api-integration"],
       repoSignals: ["env-config"],
     },
+    priority: 4,
+    createdAt: new Date("2025-08-25T14:00:00Z"),
+    updatedAt: new Date("2025-08-26T10:00:00Z"),
   },
 ];
 

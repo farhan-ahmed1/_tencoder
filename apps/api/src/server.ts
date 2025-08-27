@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import { config, isDevelopment, isTest } from "./config";
 import { connectDatabase, disconnectDatabase } from "./database";
 import { errorHandler } from "./errorHandler";
+import projectRoutes from "./routes";
 
 function createServer(): FastifyInstance {
   const server = Fastify({
@@ -42,6 +43,9 @@ function createServer(): FastifyInstance {
       uptime: process.uptime(),
     };
   });
+
+  // Register API routes
+  server.register(projectRoutes, { prefix: "/api" });
 
   return server;
 }

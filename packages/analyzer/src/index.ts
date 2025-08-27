@@ -1,13 +1,15 @@
-import { ProjectSignal } from "@tencoder/core";
+import { Signal } from "@tencoder/core";
 
 export class RepoAnalyzer {
-  analyzeProject(_repoPath: string): ProjectSignal[] {
+  analyzeProject(_repoPath: string): Signal[] {
     // Placeholder implementation
     return [
       {
+        id: "signal-1",
+        projectId: "placeholder",
         type: "project_type",
         value: "typescript",
-        timestamp: Date.now(),
+        timestamp: new Date(),
       },
     ];
   }
