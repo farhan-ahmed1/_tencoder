@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id         String   @id @default(cuid())
+  epicId     String
+  title      String
+  status     String   // "todo" | "in_progress" | "done" | "out_of_date"
+  acceptance String   // JSON array of acceptance criteria
+  checkers   String   // JSON array of checker configs
+  trace      String   // JSON object with prdRefs and repoSignals
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  epic Epic @relation(fields: [epicId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Epic {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tasks Task[]
+
+  @@map("epics")
+}
+
+model ProjectSignal {
+  id        String   @id @default(cuid())
+  type      String
+  value     String   // JSON serialized value
+  timestamp DateTime @default(now())
+
+  @@map("project_signals")
+}

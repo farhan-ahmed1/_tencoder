@@ -18,5 +18,17 @@ module.exports = {
     "@typescript-eslint/no-empty-function": "warn",
     "no-unused-vars": "off",
   },
+  overrides: [
+    {
+      files: ["**/*.test.ts", "**/*.spec.ts", "**/__tests__/**/*.ts"],
+      env: {
+        jest: true,
+        node: true,
+      },
+      rules: {
+        "@typescript-eslint/no-explicit-any": "off",
+      },
+    },
+  ],
   ignorePatterns: ["node_modules/", "dist/", "coverage/", ".eslintrc.js"],
 };
