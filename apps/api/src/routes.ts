@@ -13,12 +13,10 @@ import {
   validatePRDContent,
   extractTitleFromContent,
 } from "./utils/markdown";
+import { extractUserIdFromSession } from "./middleware/auth";
 
 const projectService = new ProjectService();
 const prdService = new PRDService();
-
-// Temporary mock user ID - in production this would come from authentication middleware
-const MOCK_USER_ID = "cmeudtu8s00005gl4afdqtz8c";
 
 interface ProjectParams {
   id: string;
@@ -39,6 +37,17 @@ interface QueryParams {
 async function projectRoutes(fastify: FastifyInstance) {
   // GET /api/projects - List all projects for user
   fastify.get<{ Querystring: QueryParams }>("/projects", async request => {
+    const userId = await extractUserIdFromSession(request);
+    if (!userId) {
+      return {
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        },
+      } satisfies APIResponse;
+    }
+
     const paginationResult = PaginationOptionsSchema.safeParse({
       page: request.query.page ? parseInt(request.query.page) : undefined,
       limit: request.query.limit ? parseInt(request.query.limit) : undefined,
@@ -59,7 +68,7 @@ async function projectRoutes(fastify: FastifyInstance) {
 
     try {
       const result = await projectService.getProjects(
-        MOCK_USER_ID,
+        userId,
         paginationResult.data
       );
       return {
@@ -86,10 +95,21 @@ async function projectRoutes(fastify: FastifyInstance) {
 
   // GET /api/projects/:id - Get project by ID
   fastify.get<{ Params: ProjectParams }>("/projects/:id", async request => {
+    const userId = await extractUserIdFromSession(request);
+    if (!userId) {
+      return {
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        },
+      } satisfies APIResponse;
+    }
+
     try {
       const project = await projectService.getProjectById(
         request.params.id,
-        MOCK_USER_ID
+        userId
       );
 
       if (!project) {
@@ -120,6 +140,17 @@ async function projectRoutes(fastify: FastifyInstance) {
 
   // POST /api/projects - Create new project
   fastify.post<{ Body: unknown }>("/projects", async request => {
+    const userId = await extractUserIdFromSession(request);
+    if (!userId) {
+      return {
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        },
+      } satisfies APIResponse;
+    }
+
     const validationResult = CreateProjectDTOSchema.safeParse(request.body);
 
     if (!validationResult.success) {
@@ -135,7 +166,7 @@ async function projectRoutes(fastify: FastifyInstance) {
 
     try {
       const project = await projectService.createProject(
-        MOCK_USER_ID,
+        userId,
         validationResult.data
       );
       return {
@@ -158,6 +189,17 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.put<{ Params: ProjectParams; Body: unknown }>(
     "/projects/:id",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       const validationResult = UpdateProjectDTOSchema.safeParse(request.body);
 
       if (!validationResult.success) {
@@ -174,7 +216,7 @@ async function projectRoutes(fastify: FastifyInstance) {
       try {
         const project = await projectService.updateProject(
           request.params.id,
-          MOCK_USER_ID,
+          userId,
           validationResult.data
         );
 
@@ -207,10 +249,21 @@ async function projectRoutes(fastify: FastifyInstance) {
 
   // DELETE /api/projects/:id - Delete project
   fastify.delete<{ Params: ProjectParams }>("/projects/:id", async request => {
+    const userId = await extractUserIdFromSession(request);
+    if (!userId) {
+      return {
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        },
+      } satisfies APIResponse;
+    }
+
     try {
       const deleted = await projectService.deleteProject(
         request.params.id,
-        MOCK_USER_ID
+        userId
       );
 
       if (!deleted) {
@@ -243,6 +296,17 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.get<{ Params: { projectId: string }; Querystring: QueryParams }>(
     "/projects/:projectId/prds",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       const paginationResult = PaginationOptionsSchema.safeParse({
         page: request.query.page ? parseInt(request.query.page) : undefined,
         limit: request.query.limit ? parseInt(request.query.limit) : undefined,
@@ -264,7 +328,7 @@ async function projectRoutes(fastify: FastifyInstance) {
       try {
         const result = await prdService.getPRDsByProject(
           request.params.projectId,
-          MOCK_USER_ID,
+          userId,
           paginationResult.data
         );
         return {
@@ -294,11 +358,19 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.get<{ Params: ProjectPRDParams }>(
     "/projects/:projectId/prds/:id",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       try {
-        const prd = await prdService.getPRDById(
-          request.params.id!,
-          MOCK_USER_ID
-        );
+        const prd = await prdService.getPRDById(request.params.id!, userId);
 
         if (!prd) {
           return {
@@ -331,6 +403,17 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.post<{ Params: { projectId: string }; Body: unknown }>(
     "/projects/:projectId/prds",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       const validationResult = CreatePRDDTOSchema.safeParse(request.body);
 
       if (!validationResult.success) {
@@ -347,7 +430,7 @@ async function projectRoutes(fastify: FastifyInstance) {
       try {
         const prd = await prdService.createPRD(
           request.params.projectId,
-          MOCK_USER_ID,
+          userId,
           validationResult.data
         );
 
@@ -382,6 +465,17 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.put<{ Params: ProjectPRDParams; Body: unknown }>(
     "/projects/:projectId/prds/:id",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       const validationResult = UpdatePRDDTOSchema.safeParse(request.body);
 
       if (!validationResult.success) {
@@ -398,7 +492,7 @@ async function projectRoutes(fastify: FastifyInstance) {
       try {
         const prd = await prdService.updatePRD(
           request.params.id!,
-          MOCK_USER_ID,
+          userId,
           validationResult.data
         );
 
@@ -433,6 +527,17 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.post<{ Params: { projectId: string } }>(
     "/projects/:projectId/prds/upload",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       try {
         // Check if file was uploaded
         const data = await request.file();
@@ -499,7 +604,7 @@ async function projectRoutes(fastify: FastifyInstance) {
 
         const prd = await prdService.createPRD(
           request.params.projectId,
-          MOCK_USER_ID,
+          userId,
           prdData
         );
 
@@ -540,11 +645,19 @@ async function projectRoutes(fastify: FastifyInstance) {
   fastify.delete<{ Params: ProjectPRDParams }>(
     "/projects/:projectId/prds/:id",
     async request => {
+      const userId = await extractUserIdFromSession(request);
+      if (!userId) {
+        return {
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "User not authenticated",
+          },
+        } satisfies APIResponse;
+      }
+
       try {
-        const deleted = await prdService.deletePRD(
-          request.params.id!,
-          MOCK_USER_ID
-        );
+        const deleted = await prdService.deletePRD(request.params.id!, userId);
 
         if (!deleted) {
           return {

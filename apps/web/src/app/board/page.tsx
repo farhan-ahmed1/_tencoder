@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -9,6 +11,7 @@ import {
   TaskCard,
 } from "@tencoder/ui";
 import { Task } from "@tencoder/core";
+import { useProject } from "@/components/project-provider";
 
 // Mock data for demonstration
 const mockTasks: Task[] = [
@@ -114,13 +117,58 @@ const statusColumns = [
 ];
 
 export default function Board() {
+  const { data: session, status } = useSession();
+  const { selectedProject, projects, loading } = useProject();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status !== "loading" && !session) {
+      router.push("/auth/signin");
+    }
+  }, [session, status, router]);
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // Will redirect to sign-in
+  }
+
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Project Board</h1>
         <p className="text-muted-foreground">
           Track your project tasks and their current status
+          {selectedProject && ` for ${selectedProject.name}`}
         </p>
+        {!selectedProject && projects.length > 0 && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p className="text-sm text-yellow-800">
+              No project selected. Please select a project from the navigation
+              menu to view its tasks.
+            </p>
+          </div>
+        )}
+        {projects.length === 0 && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800">
+              No projects found.
+              <button
+                onClick={() => router.push("/projects")}
+                className="ml-1 underline hover:no-underline"
+              >
+                Create your first project
+              </button>{" "}
+              to get started.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

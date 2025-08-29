@@ -1,5 +1,7 @@
 import React from "react";
 import { Navigation } from "@/components/navigation";
+import { AuthProvider } from "@/components/auth-provider";
+import { ProjectProvider } from "@/components/project-provider";
 import "./globals.css";
 
 export const metadata = {
@@ -15,8 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-background font-sans antialiased">
-        <Navigation />
-        <main className="flex-1">{children}</main>
+        <AuthProvider>
+          <ProjectProvider>
+            <Navigation />
+            <main className="flex-1">{children}</main>
+          </ProjectProvider>
+        </AuthProvider>
       </body>
     </html>
   );
