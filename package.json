@@ -12,13 +12,20 @@
     "build": "turbo build",
     "build:tsc": "tsc --build",
     "dev": "turbo dev",
+    "test": "turbo test",
+    "test:watch": "turbo test:watch",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo clean && rm -rf node_modules",
     "clean:tsc": "tsc --build --clean",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "start": "turbo start",
+    "db:generate": "turbo db:generate",
+    "db:migrate": "turbo db:migrate",
+    "db:reset": "turbo db:reset",
+    "db:seed": "turbo db:seed"
   },
   "workspaces": [
     "apps/*",

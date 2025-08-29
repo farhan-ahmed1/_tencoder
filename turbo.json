@@ -5,18 +5,43 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "cache": true,
-      "outputMode": "hash-only"
+      "cache": true
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "cache": true
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:migrate": {
+      "cache": false
+    },
+    "db:reset": {
+      "cache": false
+    },
+    "db:seed": {
+      "cache": false
     },
     "clean": {
       "cache": false
