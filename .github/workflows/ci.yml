@@ -45,6 +45,9 @@ jobs:
         run: |
           cd packages/core && pnpm run build
 
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
       - name: Type check
         run: pnpm typecheck
 
@@ -53,3 +56,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Test
+        run: pnpm test
