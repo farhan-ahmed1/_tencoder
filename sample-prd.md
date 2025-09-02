@@ -25,7 +25,7 @@ definitionOfDone:
   - "Validation errors are clearly displayed"
 targetAudience: "Development teams using _tencoder for project planning"
 successMetrics:
-  - name: "Upload Success Rate"
+  - name: "Upload Success Rate "
     target: "99%"
     measurement: "Percentage of successful uploads without errors"
   - name: "Parse Accuracy"
